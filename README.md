@@ -9,9 +9,12 @@ For downloading the data, you can refer to [Trans10K Website](https://xieenze.gi
 ### Tested environment
 - Ubuntu 18.04
 - Python 3.6
+- Use the following commands:
+  - `pip install -r requirements.txt`
+  - `python setup.py develop`
 
 
-### Suggested environments from the original author
+### (Deprecated) Suggested environments from the original author
 - python 3
 - torch = 1.1.0 (>1.1.0 with cause performance drop, we can't find the reason)
 - torchvision
@@ -19,7 +22,7 @@ For downloading the data, you can refer to [Trans10K Website](https://xieenze.gi
 - Pillow
 - numpy
 
-## INSTALL
+## (Deprecated) INSTALL
 
 ```
 python setup.py develop
