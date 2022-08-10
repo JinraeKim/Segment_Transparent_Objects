@@ -36,7 +36,7 @@ We provide the trained models and logs for TransLab.
 ```
 CUDA_VISIBLE_DEVICES=0 python -u ./tools/test_demo.py --config-file configs/trans10K/translab.yaml TEST.TEST_MODEL_PATH ./demo/16.pth  DEMO_DIR ./demo/imgs
 ```
-4. the results are generated in ~~'./demo/results'~~ `./demo/result`.
+4. the results are generated in ~~'./demo/results'~~ `./result`. The directory `./demo/result` is already provided the example result.
 
 
 ## Data Preparation
