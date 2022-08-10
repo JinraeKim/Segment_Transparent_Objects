@@ -6,7 +6,12 @@ For downloading the data, you can refer to [Trans10K Website](https://xieenze.gi
 
 
 ## Environments
+### Tested environment
+- Ubuntu 18.04
+- Python 3.6
 
+
+### Suggested environments from the original author
 - python 3
 - torch = 1.1.0 (>1.1.0 with cause performance drop, we can't find the reason)
 - torchvision
@@ -31,7 +36,7 @@ We provide the trained models and logs for TransLab.
 ```
 CUDA_VISIBLE_DEVICES=0 python -u ./tools/test_demo.py --config-file configs/trans10K/translab.yaml TEST.TEST_MODEL_PATH ./demo/16.pth  DEMO_DIR ./demo/imgs
 ```
-4. the results are generated in './demo/results'
+4. the results are generated in ~~'./demo/results'~~ `./demo/result`.
 
 
 ## Data Preparation
