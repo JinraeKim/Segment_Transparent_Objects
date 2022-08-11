@@ -41,6 +41,20 @@ CUDA_VISIBLE_DEVICES=0 python -u ./tools/test_demo.py --config-file configs/tran
 ```
 4. the results are generated in ~~'./demo/results'~~ `./result`. The directory `./demo/result` is already provided the example result.
 
+### Elapsed time check
+With the demo examples (`./tools/test_demo.py` is modified to check the elapsed time):
+```
+Elapsed time for evaluation: 3.4143619537353516 s
+save 2
+Elapsed time for evaluation: 0.09728717803955078 s
+save 4
+Elapsed time for evaluation: 0.09792423248291016 s
+save 3
+Elapsed time for evaluation: 0.09738516807556152 s
+save 1
+```
+That is, it would be 10Hz except for the first inference.
+
 
 ## Data Preparation
 1. create dirs './datasets/Trans10K'
