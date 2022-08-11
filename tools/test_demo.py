@@ -97,6 +97,7 @@ class Evaluator(object):
                 glass_res = cv2.resize(glass_res, (w, h), interpolation=cv2.INTER_NEAREST)
                 # boundary_res = cv2.resize(boundary_res, (w, h), interpolation=cv2.INTER_NEAREST)
                 t1 = time.time()
+                print(f"Elapsed time: {t1-t0} s")
 
                 save_path = os.path.join('/'.join(cfg.DEMO_DIR.split('/')[:-2]), 'result')
                 makedirs(save_path)
