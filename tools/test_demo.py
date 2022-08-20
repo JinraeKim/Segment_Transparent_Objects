@@ -28,6 +28,7 @@ from segmentron.utils.filesystem import makedirs
 import cv2
 import numpy as np
 
+
 class Evaluator(object):
     def __init__(self, args):
         self.args = args
