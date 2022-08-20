@@ -6,7 +6,15 @@ For downloading the data, you can refer to [Trans10K Website](https://xieenze.gi
 
 
 ## Environments
+### Tested environment
+- Ubuntu 18.04
+- Python 3.6
+- Use the following commands:
+  - `pip install -r requirements.txt`
+  - `python setup.py develop`
 
+
+### (Deprecated) Suggested environments from the original author
 - python 3
 - torch = 1.1.0 (>1.1.0 with cause performance drop, we can't find the reason)
 - torchvision
@@ -14,7 +22,7 @@ For downloading the data, you can refer to [Trans10K Website](https://xieenze.gi
 - Pillow
 - numpy
 
-## INSTALL
+## (Deprecated) INSTALL
 
 ```
 python setup.py develop
@@ -31,7 +39,21 @@ We provide the trained models and logs for TransLab.
 ```
 CUDA_VISIBLE_DEVICES=0 python -u ./tools/test_demo.py --config-file configs/trans10K/translab.yaml TEST.TEST_MODEL_PATH ./demo/16.pth  DEMO_DIR ./demo/imgs
 ```
-4. the results are generated in './demo/results'
+4. the results are generated in ~~'./demo/results'~~ `./result`. The directory `./demo/result` is already provided the example result.
+
+### Elapsed time check
+With the demo examples (`./tools/test_demo.py` is modified to check the elapsed time):
+```
+Elapsed time for evaluation: 3.4143619537353516 s
+save 2
+Elapsed time for evaluation: 0.09728717803955078 s
+save 4
+Elapsed time for evaluation: 0.09792423248291016 s
+save 3
+Elapsed time for evaluation: 0.09738516807556152 s
+save 1
+```
+That is, it would be 10Hz except for the first inference.
 
 
 ## Data Preparation

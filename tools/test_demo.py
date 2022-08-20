@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import time
 import os
 import sys
 
@@ -26,6 +27,7 @@ from collections import OrderedDict
 from segmentron.utils.filesystem import makedirs
 import cv2
 import numpy as np
+
 
 class Evaluator(object):
     def __init__(self, args):
@@ -86,6 +88,7 @@ class Evaluator(object):
             save_name = os.path.basename(filename).replace('.jpg', '').replace('.png', '')
 
             with torch.no_grad():
+                t0 = time.time()
                 output, output_boundary = model.evaluate(image)
                 ori_img = cv2.imread(filename)
                 h, w, _ = ori_img.shape
@@ -94,6 +97,8 @@ class Evaluator(object):
                 # boundary_res = output_boundary[0,0].data.cpu().numpy().astype('uint8') * 255
                 glass_res = cv2.resize(glass_res, (w, h), interpolation=cv2.INTER_NEAREST)
                 # boundary_res = cv2.resize(boundary_res, (w, h), interpolation=cv2.INTER_NEAREST)
+                t1 = time.time()
+                print(f"Elapsed time: {t1-t0} s")
 
                 save_path = os.path.join('/'.join(cfg.DEMO_DIR.split('/')[:-2]), 'result')
                 makedirs(save_path)
