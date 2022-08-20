@@ -4,11 +4,13 @@ This module provides data loaders and transformers for popular vision datasets.
 from .trans10k import TransSegmentation
 from .trans10k_boundary import TransSegmentationBoundary
 from .trans10k_extra import TransExtraSegmentation
+from .trans10k_extra_ros import TransExtraSegmentationROS
 
 datasets = {
     'trans10k': TransSegmentation,
     'trans10k_boundary': TransSegmentationBoundary,
-    'trans10k_extra': TransExtraSegmentation
+    'trans10k_extra': TransExtraSegmentation,
+    'trans10k_extra_ros': TransExtraSegmentationROS,  # custom
 }
 
 
