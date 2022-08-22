@@ -2,11 +2,13 @@ from __future__ import print_function
 
 import time
 import os
-import sys
+# import sys
 
-cur_path = os.path.abspath(os.path.dirname(__file__))
-root_path = os.path.split(cur_path)[0]
-sys.path.append(root_path)
+# # for the path; you can remove the following and set `PYTHONPATH`,
+# e.g., `PYTHONPATH="." python ./tools/test_ros.py`.
+# cur_path = os.path.abspath(os.path.dirname(__file__))
+# root_path = os.path.split(cur_path)[0]
+# sys.path.append(root_path)
 
 import logging
 import torch
@@ -32,21 +34,18 @@ class Evaluator(object):
         cfg.update_from_file(args.config_file)
         cfg.update_from_list(args.opts)
         cfg.PHASE = 'test'
-        cfg.ROOT_PATH = root_path
+        # cfg.ROOT_PATH = root_path
         cfg.DATASET.NAME = 'trans10k_extra_ros'
         cfg.check_and_freeze()
         default_setup(args)
-
         #
         self.args = args
         self.device = torch.device(self.args.device)
-
         # image transform
         self.input_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(cfg.DATASET.MEAN, cfg.DATASET.STD),
         ])
-
         # create network
         self.model = get_segmentation_model().to(self.device)
 
@@ -93,7 +92,7 @@ class Evaluator(object):
                                      batch_sampler=val_batch_sampler,
                                      num_workers=cfg.DATASET.WORKERS,
                                      pin_memory=True)
-        # self.classes = val_dataset.classes  # TODO: idk what it is
+        # self.classes = val_dataset.classes  # TODO: idk what it is so just commented it
         return val_loader
 
     def eval(self):
@@ -102,7 +101,7 @@ class Evaluator(object):
             model = self.model.module
         else:
             model = self.model
-            
+
         # dataloader
         val_loader = self.prepare_dataset()
         for i, (image, _, filename) in enumerate(val_loader):
@@ -117,7 +116,7 @@ class Evaluator(object):
                 h, w, _ = ori_img.shape
 
                 glass_res = output.argmax(1)[0].data.cpu().numpy().astype('uint8') * 127
-                boundary_res = output_boundary[0,0].data.cpu().numpy().astype('uint8') * 255
+                boundary_res = output_boundary[0, 0].data.cpu().numpy().astype('uint8') * 255
                 glass_res = cv2.resize(glass_res, (w, h), interpolation=cv2.INTER_NEAREST)
                 boundary_res = cv2.resize(boundary_res, (w, h), interpolation=cv2.INTER_NEAREST)
                 t1 = time.time()
@@ -131,5 +130,7 @@ class Evaluator(object):
 
 
 if __name__ == '__main__':
+    # Usage
+    # At the root path, `PYTHONPATH="." python ./tools/test_ros.py`
     evaluator = Evaluator()
     evaluator.eval()
