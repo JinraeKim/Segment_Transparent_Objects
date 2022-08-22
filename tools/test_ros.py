@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from __future__ import print_function
 
 import time
@@ -80,6 +82,7 @@ class Evaluator(object):
             transform=self.input_transform,
             base_size=cfg.TRAIN.BASE_SIZE,
         )
+        import pdb; pdb.set_trace()
 
         val_sampler = make_data_sampler(
             val_dataset,

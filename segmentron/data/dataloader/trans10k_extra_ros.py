@@ -1,12 +1,13 @@
 """Prepare Trans10K dataset"""
 import os
-import torch
+# import torch
 import numpy as np
 import logging
 
 from PIL import Image
 from .seg_data_base import SegmentationDataset
-from IPython import embed
+# from IPython import embed
+
 
 class TransExtraSegmentationROS(SegmentationDataset):
     """Trans10K Semantic Segmentation Dataset.
@@ -23,8 +24,8 @@ class TransExtraSegmentationROS(SegmentationDataset):
     BASE_DIR = 'Trans10K'
     NUM_CLASS = 3
 
-    def __init__(self, root='', split='train', mode=None, transform=None, **kwargs):
     # def __init__(self, images=None, split='train', mode=None, transform=None, **kwargs):
+    def __init__(self, root='', split='train', mode=None, transform=None, **kwargs):
         super(TransExtraSegmentationROS, self).__init__(root, split, mode, transform, **kwargs)
         # super(TransExtraSegmentationROS, self).__init__("", split, mode, transform, **kwargs)
         # if images is None:
@@ -42,8 +43,8 @@ class TransExtraSegmentationROS(SegmentationDataset):
 
     def __getitem__(self, index):
         img = Image.open(self.images[index]).convert('RGB')
-        mask = np.zeros_like(np.array(img))[:,:,0]
-        assert mask.max()<=2, mask.max()
+        mask = np.zeros_like(np.array(img))[:, :, 0]
+        assert mask.max() <= 2, mask.max()
         mask = Image.fromarray(mask)
 
         # synchrosized transform
@@ -86,5 +87,7 @@ def _get_demo_pairs(folder):
 
     return img_paths
 
+
 if __name__ == '__main__':
-    dataset = TransSegmentation()
+    pass
+    # dataset = TransSegmentation()
