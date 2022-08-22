@@ -72,17 +72,17 @@ class Evaluator(object):
             if isinstance(m[1], nn.BatchNorm2d) or isinstance(m[1], nn.SyncBatchNorm):
                 setattr(m[1], attr, value)
 
-    def prepare_dataset(self):
+    def prepare_dataset(self, img_cv2):
         # dataset and dataloader
         val_dataset = get_segmentation_dataset(
             cfg.DATASET.NAME,
-            root=cfg.DEMO_DIR,
+            # root=cfg.DEMO_DIR,
+            images=img_cv2,
             split='val',
             mode='val',
             transform=self.input_transform,
             base_size=cfg.TRAIN.BASE_SIZE,
         )
-        import pdb; pdb.set_trace()
 
         val_sampler = make_data_sampler(
             val_dataset,
@@ -98,7 +98,7 @@ class Evaluator(object):
         # self.classes = val_dataset.classes  # TODO: idk what it is so just commented it
         return val_loader
 
-    def eval(self):
+    def eval(self, img_cv2):
         self.model.eval()
         if self.args.distributed:
             model = self.model.module
@@ -106,17 +106,20 @@ class Evaluator(object):
             model = self.model
 
         # dataloader
-        val_loader = self.prepare_dataset()
-        for i, (image, _, filename) in enumerate(val_loader):
+        val_loader = self.prepare_dataset(img_cv2)
+        # for i, (image, _, filename) in enumerate(val_loader):
+        for i, (image, _, ori_img) in enumerate(val_loader):
             image = image.to(self.device)
-            filename = filename[0]
-            save_name = os.path.basename(filename).replace('.jpg', '').replace('.png', '')
+            # filename = filename[0]
+            # save_name = os.path.basename(filename).replace('.jpg', '').replace('.png', '')
 
             with torch.no_grad():
                 t0 = time.time()
                 output, output_boundary = model.evaluate(image)
-                ori_img = cv2.imread(filename)
-                h, w, _ = ori_img.shape
+                # ori_img = cv2.imread(filename)
+                # h, w, _ = ori_img.shape
+                # import pdb; pdb.set_trace()
+                _, h, w, _ = ori_img.shape
 
                 glass_res = output.argmax(1)[0].data.cpu().numpy().astype('uint8') * 127
                 boundary_res = output_boundary[0, 0].data.cpu().numpy().astype('uint8') * 255
@@ -125,15 +128,22 @@ class Evaluator(object):
                 t1 = time.time()
                 print(f"Elapsed time: {t1-t0} s")
 
-                save_path = os.path.join('/'.join(cfg.DEMO_DIR.split('/')[:-2]), 'result')
-                makedirs(save_path)
-                cv2.imwrite(os.path.join(save_path, '{}_glass.png'.format(save_name)), glass_res)
-                cv2.imwrite(os.path.join(save_path, '{}_boundary.png'.format(save_name)), boundary_res)
-                print('save {}'.format(save_name))
+                # save_path = os.path.join('/'.join(cfg.DEMO_DIR.split('/')[:-2]), 'result')
+                # makedirs(save_path)
+                # cv2.imwrite(os.path.join(save_path, '{}_glass.png'.format(save_name)), glass_res)
+                # cv2.imwrite(os.path.join(save_path, '{}_boundary.png'.format(save_name)), boundary_res)
+                # print('save {}'.format(save_name))
+                return glass_res, boundary_res
 
 
 if __name__ == '__main__':
     # Usage
     # At the root path, `PYTHONPATH="." python ./tools/test_ros.py`
+    img_cv2 = [cv2.imread("./demo/imgs/1.png")]
     evaluator = Evaluator()
-    evaluator.eval()
+    glass_res, boundary_res = evaluator.eval(img_cv2)
+    # tmp
+    save_path = "."
+    save_name = "tmp"
+    cv2.imwrite(os.path.join(save_path, '{}_glass.png'.format(save_name)), glass_res)
+    cv2.imwrite(os.path.join(save_path, '{}_boundary.png'.format(save_name)), boundary_res)

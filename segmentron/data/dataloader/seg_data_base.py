@@ -15,7 +15,10 @@ class SegmentationDataset(object):
 
     def __init__(self, root, split, mode, transform, base_size=520, crop_size=480):
         super(SegmentationDataset, self).__init__()
-        self.root = os.path.join(cfg.ROOT_PATH, root)
+        if root is None:
+            self.root = None
+        else:
+            self.root = os.path.join(cfg.ROOT_PATH, root)
         self.transform = transform
         self.split = split
         self.mode = mode if mode is not None else split
@@ -57,7 +60,6 @@ class SegmentationDataset(object):
         short_size = self.base_size
         img = img.resize((short_size, short_size), Image.BILINEAR)
         mask = mask.resize((short_size, short_size), Image.NEAREST)
-        
         # final transform
         img, mask = self._img_transform(img), self._mask_transform(mask)
         return img, mask
