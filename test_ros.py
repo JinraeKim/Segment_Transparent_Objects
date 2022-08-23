@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-
 from __future__ import print_function
 
 import time
 import os
-# import sys
+import sys
+import rospy
+from sensor_msgs.msg import Image
 
 # # for the path; you can remove the following and set `PYTHONPATH`,
 # e.g., `PYTHONPATH="." python ./tools/test_ros.py`.
@@ -25,8 +26,9 @@ from segmentron.config import cfg
 # from segmentron.utils.options import parse_args
 from segmentron.utils.options import parse_args_ros
 from segmentron.utils.default_setup import default_setup
-from segmentron.utils.filesystem import makedirs
+# from segmentron.utils.filesystem import makedirs
 import cv2
+from cv_bridge import CvBridge, CvBridgeError
 
 
 class Evaluator(object):
@@ -72,12 +74,12 @@ class Evaluator(object):
             if isinstance(m[1], nn.BatchNorm2d) or isinstance(m[1], nn.SyncBatchNorm):
                 setattr(m[1], attr, value)
 
-    def prepare_dataset(self, img_cv2):
+    def prepare_dataset(self, img_cv2_list):
         # dataset and dataloader
         val_dataset = get_segmentation_dataset(
             cfg.DATASET.NAME,
             # root=cfg.DEMO_DIR,
-            images=img_cv2,
+            images=img_cv2_list,
             split='val',
             mode='val',
             transform=self.input_transform,
@@ -98,7 +100,7 @@ class Evaluator(object):
         # self.classes = val_dataset.classes  # TODO: idk what it is so just commented it
         return val_loader
 
-    def eval(self, img_cv2):
+    def eval(self, img_cv2_list):
         self.model.eval()
         if self.args.distributed:
             model = self.model.module
@@ -106,7 +108,7 @@ class Evaluator(object):
             model = self.model
 
         # dataloader
-        val_loader = self.prepare_dataset(img_cv2)
+        val_loader = self.prepare_dataset(img_cv2_list)
         # for i, (image, _, filename) in enumerate(val_loader):
         for i, (image, _, ori_img) in enumerate(val_loader):
             image = image.to(self.device)
@@ -136,14 +138,50 @@ class Evaluator(object):
                 return glass_res, boundary_res
 
 
+# if __name__ == '__main__':
+#     # Usage
+#     # At the root path, `PYTHONPATH="." python ./tools/test_ros.py`
+#     img_cv2_list = [cv2.imread("./demo/imgs/1.png")]
+#     evaluator = Evaluator()
+#     glass_res, boundary_res = evaluator.eval(img_cv2_list)
+#     # tmp
+#     save_path = "."
+#     save_name = "tmp"
+#     cv2.imwrite(os.path.join(save_path, '{}_glass.png'.format(save_name)), glass_res)
+#     cv2.imwrite(os.path.join(save_path, '{}_boundary.png'.format(save_name)), boundary_res)
+
+
+class TransparentObjectDetector:
+    def __init__(self):
+        self.evaluator = Evaluator()
+        self.image_pub = rospy.Publisher("image_topic_2", Image)
+
+        self.bridge = CvBridge()
+        self.image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback)
+
+    def callback(self, image_data):
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(image_data, "bgr8")
+        except CvBridgeError as e:
+            print(e)
+        img_cv2_list = [cv_image]
+        glass_res, boundary_res = self.evaluator.eval(img_cv2_list)
+
+        try:
+            self.image_pub.publish(self.bridge.cv2_to_imgmsg(glass_res, "bgr8"))
+        except CvBridgeError as e:
+            print(e)
+
+
+def main(args):
+    ic = TransparentObjectDetector()
+    rospy.init_node('transparent_object_detector', anonymous=True)
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
+    cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
-    # Usage
-    # At the root path, `PYTHONPATH="." python ./tools/test_ros.py`
-    img_cv2 = [cv2.imread("./demo/imgs/1.png")]
-    evaluator = Evaluator()
-    glass_res, boundary_res = evaluator.eval(img_cv2)
-    # tmp
-    save_path = "."
-    save_name = "tmp"
-    cv2.imwrite(os.path.join(save_path, '{}_glass.png'.format(save_name)), glass_res)
-    cv2.imwrite(os.path.join(save_path, '{}_boundary.png'.format(save_name)), boundary_res)
+    main(sys.argv)
